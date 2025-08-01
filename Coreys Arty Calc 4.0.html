@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<!-- saved from url=(0062)file:///C:/Users/corey/Desktop/Coreys%20Arty%20Calc%204.0.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>M119 Range Calculator</title>
+<style>
+  body {
+    background-color: #556B2F;
+    color: white;
+    font-family: monospace;
+    padding: 40px;
+    font-size: 2em;
+    text-shadow: 2px 2px black;
+  }
+  h1 {
+    font-size: 3.5em;
+    color: #FFD700;
+    text-shadow: 2px 2px black;
+    margin-bottom: 10px;
+    user-select: none;
+  }
+  h3 {
+    font-size: 1.5em;
+    color: #FFD700;
+    text-shadow: 2px 2px black;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    user-select: none;
+  }
+  label, button {
+    font-size: 1em;
+    text-shadow: 1px 1px black;
+    display: block;
+    width: 320px;
+    margin-bottom: 8px;
+  }
+  input {
+    width: 200px;
+    height: 40px;
+    font-size: 1em;
+    background-color: #333;
+    color: white;
+    border: 2px solid black;
+    margin-top: 4px;
+  }
+  button {
+    background-color: black;
+    color: white;
+    border: 2px solid #FFD700;
+    cursor: pointer;
+    text-shadow: 1px 1px black;
+    font-size: 1em;
+    padding: 10px 20px;
+    margin: 5px 0;
+    text-align: center;
+  }
+  pre {
+    margin-top: 30px;
+    white-space: pre-wrap;
+    text-shadow: 1px 1px black;
+  }
+  .warning {
+    color: red;
+    text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 0.8em;
+  }
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    grid-gap: 10px 20px;
+    margin-top: 20px;
+    width: fit-content;
+  }
+  .creator {
+    position: fixed;
+    bottom: 15px;
+    right: 20px;
+    color: #FFD700;
+    font-size: 1em;
+    text-shadow: 1px 1px black;
+  }
+  #walkBtn, #walkClearBtn, #ringBtn, #ringClearBtn, #boxBtn, #boxClearBtn {
+    width: 320px;
+    height: 64px;
+    padding: 0;
+    line-height: 64px;
+    box-sizing: border-box;
+    text-align: center;
+    vertical-align: middle;
+    display: inline-block;
+  }
+  .toggle {
+    background-color: #FFD700;
+    color: black;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 10px;
+    cursor: pointer;
+    user-select: none;
+    margin: 20px 0 10px 0;
+    text-align: left;
+    text-shadow: none;
+  }
+  .section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+  }
+  .section-content.open {
+    max-height: 2000px; /* large enough for content */
+  }
+</style>
+</head>
+<body>
+
+<h1>M119 Range Calculator VER4.0</h1>
+
+<div class="toggle" data-target="#gridSection">+ GRID MISSION</div>
+<div id="gridSection" class="section-content">
+  <label>Enter range (m): 
+    <input type="number" id="rangeInput" min="0" value="1000">
+  </label>
+  <button id="calcBtn">Calculate</button>
+  <button id="clearBtn">Clear</button>
+  <pre id="result">Direct fire EL: 5.30 degrees
+Indirect fire EL: 83.90 degrees</pre>
+  <div id="warning" class=""></div>
+
+  <h3>RANGE ADJUSTMENT</h3>
+  <div class="button-grid">
+    <button onclick="adjustRange(25)">+25m</button>
+    <button onclick="adjustRange(50)">+50m</button>
+    <button onclick="adjustRange(75)">+75m</button>
+    <button onclick="adjustRange(100)">+100m</button>
+    <button onclick="adjustRange(-25)">-25m</button>
+    <button onclick="adjustRange(-50)">-50m</button>
+    <button onclick="adjustRange(-75)">-75m</button>
+    <button onclick="adjustRange(-100)">-100m</button>
+  </div>
+</div>
+
+<div class="toggle" data-target="#walkSection">+ WALKING BARRAGE</div>
+<div id="walkSection" class="section-content">
+  <h3>SHIFT/LIFT SPACING</h3>
+  <div style="display: flex; gap: 20px;">
+    <button class="spacingBtn" onclick="setSpacing(20,this)" style="border:2px solid red">20m</button>
+    <button class="spacingBtn" onclick="setSpacing(30,this)" style="border:2px solid #FFD700">30m</button>
+    <button class="spacingBtn" onclick="setSpacing(40,this)" style="border:2px solid #FFD700">40m</button>
+    <button class="spacingBtn" onclick="setSpacing(50,this)" style="border:2px solid #FFD700">50m</button>
+  </div>
+
+  <h3>TARGET A</h3>
+  <label>Azimuth to A (deg):<br> 
+    <input type="number" id="azA" value="0">
+  </label>
+  <label>Distance to A (m):<br> 
+    <input type="number" id="distA" value="1000">
+  </label>
+
+  <h3>TARGET B</h3>
+  <label>Azimuth to B (deg):<br> 
+    <input type="number" id="azB" value="0">
+  </label>
+  <label>Distance to B (m):<br> 
+    <input type="number" id="distB" value="1100">
+  </label>
+
+  <button id="walkBtn">Calculate</button>
+  <button id="walkClearBtn">Clear</button>
+  <pre id="walkResult"></pre>
+  <div id="walkWarning" class="warning"></div>
+</div>
+
+<div class="toggle" data-target="#ringSection">+ CIRCULAR/RING FIRE</div>
+<div id="ringSection" class="section-content">
+  <h3>SHIFT/LIFT SPACING</h3>
+  <div style="display: flex; gap: 20px;">
+    <button class="ringSpacingBtn" onclick="setRingSpacing(20,this)" style="border:2px solid red">20m</button>
+    <button class="ringSpacingBtn" onclick="setRingSpacing(30,this)" style="border:2px solid #FFD700">30m</button>
+    <button class="ringSpacingBtn" onclick="setRingSpacing(40,this)" style="border:2px solid #FFD700">40m</button>
+    <button class="ringSpacingBtn" onclick="setRingSpacing(50,this)" style="border:2px solid #FFD700">50m</button>
+  </div>
+
+  <h3>CENTER POINT</h3>
+  <label>Azimuth to target (deg):<br> 
+    <input type="number" id="ringAz" value="0">
+  </label>
+  <label>Distance to target (m):<br> 
+    <input type="number" id="ringDist" value="1000">
+  </label>
+  <label>Ring radius (m):<br> 
+    <input type="number" id="ringRadius" value="100" min="0">
+  </label>
+
+  <input type="hidden" id="roundSpacing" value="20">
+  <button id="ringBtn">Calculate</button>
+  <button id="ringClearBtn">Clear</button>
+  <pre id="ringResult"></pre>
+  <div id="ringWarning" class="warning"></div>
+</div>
+
+<div class="toggle" data-target="#boxSection">+ RECTANGULAR/BOX FIRE</div>
+<div id="boxSection" class="section-content">
+  <h3>SHIFT/LIFT SPACING</h3>
+  <div style="display: flex; gap: 20px;">
+    <button class="boxSpacingBtn" onclick="setBoxSpacing(20,this)" style="border: 2px solid rgb(255, 215, 0);">20m</button>
+    <button class="boxSpacingBtn" onclick="setBoxSpacing(30,this)" style="border: 2px solid rgb(255, 215, 0);">30m</button>
+    <button class="boxSpacingBtn" onclick="setBoxSpacing(40,this)" style="border: 2px solid rgb(255, 215, 0);">40m</button>
+    <button class="boxSpacingBtn" onclick="setBoxSpacing(50,this)" style="border: 2px solid red;">50m</button>
+  </div>
+
+  <h3>CENTER POINT</h3>
+  <label>Azimuth to target (deg):<br> 
+    <input type="number" id="boxAz" value="0">
+  </label>
+  <label>Distance to target (m):<br> 
+    <input type="number" id="boxDist" value="1000">
+  </label>
+  <label>Distance From Center to Box Edge (m):<br> 
+    <input type="number" id="boxHalfSize" value="100" min="0">
+  </label>
+
+  <input type="hidden" id="boxSpacing" value="50">
+  <button id="boxBtn">Calculate</button>
+  <button id="boxClearBtn">Clear</button>
+  <pre id="boxResult"></pre>
+  <div id="boxWarning" class="warning"></div>
+</div>
+
+<div class="creator">Created by: Corey_H</div>
+
+<script>
+const rangeDirect = [500,1000,1500,2000,2500,3000,3500,4000,4500,4750];
+const elDirect = [2.55,5.3,8,10.8,14.2,17.6,21.6,27.3,33.5,45];
+const rangeIndirect = [800,1000,1500,2000,2500,3000,3500,4000,4500,4750];
+const elIndirect = [85,83.9,81.2,77.8,73.9,70.5,66,53.6,45,45];
+
+let spacing = 20;
+function setSpacing(value, button){
+  spacing = value;
+  document.querySelectorAll('.spacingBtn').forEach(btn=>{
+    btn.style.border = '2px solid #FFD700';
+  });
+  button.style.border = '2px solid red';
+}
+function setRingSpacing(value, button){
+  document.getElementById("roundSpacing").value = value;
+  document.querySelectorAll('.ringSpacingBtn').forEach(btn=>{
+    btn.style.border = '2px solid #FFD700';
+  });
+  button.style.border = '2px solid red';
+}
+function setBoxSpacing(value, button){
+  document.getElementById("boxSpacing").value = value;
+  document.querySelectorAll('.boxSpacingBtn').forEach(btn=>{
+    btn.style.border = '2px solid #FFD700';
+  });
+  button.style.border = '2px solid red';
+}
+function clamp(x, min, max) { return Math.min(Math.max(x, min), max); }
+function interpolate(x, x1, x2, y1, y2) { return y1 + ((x - x1) * (y2 - y1)) / (x2 - x1); }
+function findEL(rangeArray, elArray, target) {
+  target = clamp(target, rangeArray[0], rangeArray[rangeArray.length-1]);
+  for (let i=0;i<rangeArray.length-1;i++) {
+    let r1=rangeArray[i], r2=rangeArray[i+1];
+    let e1=elArray[i], e2=elArray[i+1];
+    if(target>=r1 && target<=r2) return interpolate(target,r1,r2,e1,e2).toFixed(2);
+  }
+  return null;
+}
+function calculateEL(){
+  const input=parseFloat(document.getElementById("rangeInput").value);
+  const warningEl=document.getElementById("warning");
+  if(isNaN(input)||input<=0){document.getElementById("result").textContent="Please enter a positive number.";warningEl.textContent="";return;}
+  const directEL=findEL(rangeDirect,elDirect,input);
+  const indirectEL=findEL(rangeIndirect,elIndirect,input);
+  document.getElementById("result").textContent=`Direct fire EL: ${directEL} degrees\nIndirect fire EL: ${indirectEL} degrees`;
+  if(input>4750){warningEl.textContent="MAX RANGE EXCEEDED (4750M)";warningEl.className="warning";} 
+  else if(input<500){warningEl.textContent="MIN RANGE NOT REACHED (500M)";warningEl.className="warning";} 
+  else {warningEl.textContent="";warningEl.className="";}
+}
+function adjustRange(delta){
+  const inputField=document.getElementById("rangeInput");
+  let current=parseFloat(inputField.value)||0;
+  let newVal=current+delta;
+  if(newVal<0) newVal=0;
+  inputField.value=newVal;
+  calculateEL();
+}
+function walkingBarrage(){
+  const azA=parseFloat(document.getElementById("azA").value)*Math.PI/180;
+  const dA=parseFloat(document.getElementById("distA").value);
+  const azB=parseFloat(document.getElementById("azB").value)*Math.PI/180;
+  const dB=parseFloat(document.getElementById("distB").value);
+  const warningEl=document.getElementById("walkWarning");
+  const resultEl=document.getElementById("walkResult");
+  warningEl.textContent="";
+  resultEl.textContent="";
+  if(isNaN(dA)||isNaN(dB)){resultEl.textContent="Invalid input";return;}
+  const Ax=dA*Math.cos(azA), Ay=dA*Math.sin(azA);
+  const Bx=dB*Math.cos(azB), By=dB*Math.sin(azB);
+  const dx=Bx-Ax, dy=By-Ay;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  const steps=Math.floor(dist/spacing);
+  let minRangeOk=true, maxRangeOk=true;
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    const x=Ax+dx*t;
+    const y=Ay+dy*t;
+    const range=Math.sqrt(x*x+y*y);
+    if(range>4750) maxRangeOk=false;
+    if(range<500) minRangeOk=false;
+  }
+  if(!maxRangeOk){warningEl.textContent="MAX RANGE EXCEEDED (4750M)";return;}
+  if(!minRangeOk){warningEl.textContent="MIN RANGE NOT REACHED (500M)";return;}
+  let result=`Walking Barrage (${spacing}m spacing)\n`;
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    const x=Ax+dx*t;
+    const y=Ay+dy*t;
+    const range=Math.sqrt(x*x+y*y);
+    let az=Math.atan2(y,x)*180/Math.PI;
+    if(az<0) az+=360;
+    const el=findEL(rangeIndirect,elIndirect,range);
+    const stepLabel=i<10?`0${i}`:i;
+    result+=`Step ${stepLabel}: Range ${range.toFixed(1)}m | Azimuth ${az.toFixed(1)}° | EL ${el}\n`;
+  }
+  resultEl.textContent=result;
+}
+
+function circularRingFire() {
+  const warningEl = document.getElementById("ringWarning");
+  const resultEl = document.getElementById("ringResult");
+  warningEl.textContent = "";
+  resultEl.textContent = "";
+
+  const azimuthDeg = parseFloat(document.getElementById("ringAz").value);
+  const distance = parseFloat(document.getElementById("ringDist").value);
+  const ringRadius = parseFloat(document.getElementById("ringRadius").value);
+  const roundSpacing = parseFloat(document.getElementById("roundSpacing").value);
+
+  if (
+    isNaN(azimuthDeg) || isNaN(distance) || isNaN(ringRadius) || isNaN(roundSpacing) ||
+    distance <= 0 || ringRadius < 0 || roundSpacing <= 0
+  ) {
+    resultEl.textContent = "Please enter valid positive numbers.";
+    return;
+  }
+
+  const centerAzRad = azimuthDeg * Math.PI / 180;
+  const centerX = distance * Math.cos(centerAzRad);
+  const centerY = distance * Math.sin(centerAzRad);
+
+  if (ringRadius === 0) {
+    resultEl.textContent = "Ring radius is zero; no ring to compute.";
+    return;
+  }
+  const circumference = 2 * Math.PI * ringRadius;
+  const rounds = Math.max(1, Math.floor(circumference / roundSpacing));
+
+  let minRangeOk = true, maxRangeOk = true;
+  let result = `Circular/Ring Fire (${roundSpacing}m spacing, radius ${ringRadius}m)\n`;
+
+  for (let i = 0; i < rounds; i++) {
+    const angle = (2 * Math.PI / rounds) * i;
+    const x = centerX + ringRadius * Math.cos(angle);
+    const y = centerY + ringRadius * Math.sin(angle);
+    const range = Math.sqrt(x * x + y * y);
+    if (range > 4750) maxRangeOk = false;
+    if (range < 500) minRangeOk = false;
+  }
+  if (!maxRangeOk) {
+    warningEl.textContent = "MAX RANGE EXCEEDED (4750M)";
+    return;
+  }
+  if (!minRangeOk) {
+    warningEl.textContent = "MIN RANGE NOT REACHED (500M)";
+    return;
+  }
+
+  for (let i = 0; i < rounds; i++) {
+    const angle = (2 * Math.PI / rounds) * i;
+    const x = centerX + ringRadius * Math.cos(angle);
+    const y = centerY + ringRadius * Math.sin(angle);
+    const range = Math.sqrt(x * x + y * y);
+    let az = Math.atan2(y, x) * 180 / Math.PI;
+    if (az < 0) az += 360;
+    const el = findEL(rangeIndirect, elIndirect, range);
+    const stepLabel = i < 10 ? `0${i}` : i;
+    result += `Step ${stepLabel}: Range ${range.toFixed(1)}m | Azimuth ${az.toFixed(1)}° | EL ${el}\n`;
+  }
+  resultEl.textContent = result;
+}
+
+function rectangularBoxFire() {
+  const warningEl = document.getElementById("boxWarning");
+  const resultEl = document.getElementById("boxResult");
+  warningEl.textContent = "";
+  resultEl.textContent = "";
+
+  const azimuthDeg = parseFloat(document.getElementById("boxAz").value);
+  const distance = parseFloat(document.getElementById("boxDist").value);
+  const halfSize = parseFloat(document.getElementById("boxHalfSize").value);
+  const spacing = parseFloat(document.getElementById("boxSpacing").value);
+
+  if (
+    isNaN(azimuthDeg) || isNaN(distance) || isNaN(halfSize) ||
+    distance <= 0 || halfSize < 0 || spacing <= 0
+  ) {
+    resultEl.textContent = "Please enter valid positive numbers.";
+    return;
+  }
+
+  const centerAzRad = azimuthDeg * Math.PI / 180;
+  const centerX = distance * Math.cos(centerAzRad);
+  const centerY = distance * Math.sin(centerAzRad);
+
+  // Calculate the 4 corners of the box rotated by azimuth:
+  // Box is square with side = 2*halfSize.
+  // We calculate offsets for corners from center:
+  // Using vector rotation by azimuth.
+
+  // Calculate half diagonal vector components in local box coords:
+  // Box corners relative to center before rotation:
+  // Top-left: (-halfSize, halfSize)
+  // Top-right: (halfSize, halfSize)
+  // Bottom-right: (halfSize, -halfSize)
+  // Bottom-left: (-halfSize, -halfSize)
+
+  function rotatePoint(x, y, angleRad) {
+    return {
+      x: x * Math.cos(angleRad) - y * Math.sin(angleRad),
+      y: x * Math.sin(angleRad) + y * Math.cos(angleRad),
+    };
+  }
+
+  let points = [
+    rotatePoint(-halfSize, halfSize, centerAzRad),
+    rotatePoint(halfSize, halfSize, centerAzRad),
+    rotatePoint(halfSize, -halfSize, centerAzRad),
+    rotatePoint(-halfSize, -halfSize, centerAzRad)
+  ];
+
+  let minRangeOk = true, maxRangeOk = true;
+  let result = `Rectangular/Box Fire (Box half size: ${halfSize}m)\n`;
+
+  points.forEach((p, i) => {
+    const x = centerX + p.x;
+    const y = centerY + p.y;
+    const range = Math.sqrt(x * x + y * y);
+    if (range > 4750) maxRangeOk = false;
+    if (range < 500) minRangeOk = false;
+  });
+
+  if (!maxRangeOk) {
+    warningEl.textContent = "MAX RANGE EXCEEDED (4750M)";
+    return;
+  }
+  if (!minRangeOk) {
+    warningEl.textContent = "MIN RANGE NOT REACHED (500M)";
+    return;
+  }
+
+  points.forEach((p, i) => {
+    const x = centerX + p.x;
+    const y = centerY + p.y;
+    const range = Math.sqrt(x * x + y * y);
+    let az = Math.atan2(y, x) * 180 / Math.PI;
+    if (az < 0) az += 360;
+    const el = findEL(rangeIndirect, elIndirect, range);
+    const stepLabel = i < 10 ? `0${i}` : i;
+    result += `Step ${stepLabel}: Range ${range.toFixed(1)}m | Azimuth ${az.toFixed(1)}° | EL ${el}\n`;
+  });
+  resultEl.textContent = result;
+}
+
+// Event Listeners
+document.getElementById("calcBtn").addEventListener("click", calculateEL);
+document.getElementById("clearBtn").addEventListener("click", () => {
+  document.getElementById("rangeInput").value = 1000;
+  calculateEL();
+});
+document.getElementById("walkBtn").addEventListener("click", walkingBarrage);
+document.getElementById("walkClearBtn").addEventListener("click", () => {
+  document.getElementById("azA").value = 0;
+  document.getElementById("distA").value = 1000;
+  document.getElementById("azB").value = 0;
+  document.getElementById("distB").value = 1100;
+  document.getElementById("walkResult").textContent = "";
+  document.getElementById("walkWarning").textContent = "";
+});
+document.getElementById("ringBtn").addEventListener("click", circularRingFire);
+document.getElementById("ringClearBtn").addEventListener("click", () => {
+  document.getElementById("ringAz").value = 0;
+  document.getElementById("ringDist").value = 1000;
+  document.getElementById("ringRadius").value = 100;
+  setRingSpacing(20, document.querySelector('.ringSpacingBtn'));
+  document.getElementById("ringResult").textContent = "";
+  document.getElementById("ringWarning").textContent = "";
+});
+document.getElementById("boxBtn").addEventListener("click", rectangularBoxFire);
+document.getElementById("boxClearBtn").addEventListener("click", () => {
+  document.getElementById("boxAz").value = 0;
+  document.getElementById("boxDist").value = 1000;
+  document.getElementById("boxHalfSize").value = 100;
+  setBoxSpacing(20, document.querySelector('.boxSpacingBtn'));
+  document.getElementById("boxResult").textContent = "";
+  document.getElementById("boxWarning").textContent = "";
+});
+
+// Toggle Sections
+document.querySelectorAll('.toggle').forEach(toggle=>{
+  toggle.addEventListener('click', ()=>{
+    const targetSelector = toggle.getAttribute('data-target');
+    const target = document.querySelector(targetSelector);
+    if(!target.classList.contains('open')){
+      target.classList.add('open');
+      toggle.textContent = toggle.textContent.replace('+', '−');
+    } else {
+      target.classList.remove('open');
+      toggle.textContent = toggle.textContent.replace('−', '+');
+    }
+  });
+});
+
+// Set initial spacing button highlights and toggle default (collapsed)
+document.querySelectorAll('.spacingBtn').forEach((btn, i) => {
+  if(i===0) btn.style.border = '2px solid red'; else btn.style.border = '2px solid #FFD700';
+});
+document.querySelectorAll('.ringSpacingBtn').forEach((btn, i) => {
+  if(i===0) btn.style.border = '2px solid red'; else btn.style.border = '2px solid #FFD700';
+});
+document.querySelectorAll('.boxSpacingBtn').forEach((btn, i) => {
+  if(i===0) btn.style.border = '2px solid red'; else btn.style.border = '2px solid #FFD700';
+});
+
+// All sections collapsed by default
+
+// Initial calculate
+calculateEL();
+</script>
+
+
+
+</body></html>
