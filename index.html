@@ -116,6 +116,74 @@
 <body>
 
 <h1>M119 Range Calculator VER4.0</h1>
+<div class="toggle" data-target="#distanceElevationSection">+ DISTANCE AND ELEVATION CORRECTION</div>
+<div id="distanceElevationSection" class="section-content">
+  <label>Grid A<br> (e.g. 0504,0909):<br>
+    <input type="text" id="gridA" placeholder="0504,0909">
+  </label>
+  <label>Point A Elevation (m):<br>
+    <input type="number" id="elevA" value="0">
+  </label>
+  <label>Grid B<br> (e.g. 0343,0498):<br>
+    <input type="text" id="gridB" placeholder="0343,0498">
+  </label>
+  <label>Point B Elevation (m):<br>
+    <input type="number" id="elevB" value="0">
+  </label>
+  <button id="distElevBtn">Calculate</button>
+  <button id="distElevClearBtn">Clear</button>
+  <pre id="distElevResult"></pre>
+  <div id="distElevWarning" class="warning"></div>
+</div>
+
+<script>
+function parseGridComma(grid) {
+  if (!grid) return null;
+  grid = grid.trim();
+  const match = grid.match(/^(\d{4})\s*,\s*(\d{4})$/);
+  if (!match) return null;
+  return {
+    x: parseInt(match[1]) * 10,
+    y: parseInt(match[2]) * 10
+  };
+}
+
+function calculateDistanceElevationCorrection() {
+  const gridA = parseGridComma(document.getElementById("gridA").value);
+  const gridB = parseGridComma(document.getElementById("gridB").value);
+  const elevA = parseFloat(document.getElementById("elevA").value);
+  const elevB = parseFloat(document.getElementById("elevB").value);
+  const warningEl = document.getElementById("distElevWarning");
+  const resultEl = document.getElementById("distElevResult");
+  warningEl.textContent = "";
+  resultEl.textContent = "";
+
+  if (!gridA || !gridB || isNaN(elevA) || isNaN(elevB)) {
+    resultEl.textContent = "Invalid input. Use ####,#### format and numeric elevations.";
+    return;
+  }
+  const dx = gridB.x - gridA.x;
+  const dy = gridB.y - gridA.y;
+  const flatRange = Math.sqrt(dx * dx + dy * dy);
+  const deltaH = elevB - elevA;
+  const correctedRange = flatRange - (deltaH / 1000) * flatRange;
+
+  resultEl.textContent =
+    `Flat Range: ${flatRange.toFixed(1)} m\n` +
+    `Elevation Difference: ${deltaH.toFixed(1)} m\n` +
+    `Corrected Range: ${correctedRange.toFixed(1)} m`;
+}
+
+document.getElementById("distElevBtn").addEventListener("click", calculateDistanceElevationCorrection);
+document.getElementById("distElevClearBtn").addEventListener("click", () => {
+  document.getElementById("gridA").value = "";
+  document.getElementById("elevA").value = 0;
+  document.getElementById("gridB").value = "";
+  document.getElementById("elevB").value = 0;
+  document.getElementById("distElevResult").textContent = "";
+  document.getElementById("distElevWarning").textContent = "";
+});
+</script>
 
 <div class="toggle" data-target="#gridSection">+ GRID MISSION</div>
 <div id="gridSection" class="section-content">
